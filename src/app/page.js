@@ -1,65 +1,87 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect } from 'react';
+import Navbar from '@/components/Navbar';
+import Header from '@/components/Header';
+import ProgressCards from '@/components/ProgressCards';
+import RoadmapView from '@/components/RoadmapView';
+import RightSidebar from '@/components/RightSidebar';
+import AIChatbot from '@/components/AIChatbot';
+import { useAuth } from '@/lib/useAuth';
+import { useStore } from '@/store/useStore';
+import { Sparkles, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
+  const { user } = useAuth();
+  const { initializeListeners, userProfile, progress, feedbackActions, clearFeedbackActions } = useStore();
+
+  useEffect(() => {
+    let unsubscribe;
+    if (user) {
+      unsubscribe = initializeListeners(user.uid);
+    }
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [user, initializeListeners]);
+
+  if (!userProfile || !progress) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f4f7ff]">
+        <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/80 to-transparent pointer-events-none -translate-y-12"></div>
+        <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4 z-10"></div>
+        <p className="text-slate-500 font-medium animate-pulse z-10">Preparing your universe...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen relative overflow-hidden bg-[#f4f7ff]">
+      {/* Background decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/80 to-transparent pointer-events-none -translate-y-12"></div>
+      <div className="absolute top-20 right-20 w-[500px] h-[500px] bg-indigo-100/30 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-20 left-10 w-[400px] h-[400px] bg-teal-50/40 rounded-full blur-[80px] pointer-events-none"></div>
+
+      <Navbar />
+
+      {/* Feedback Banner */}
+      <AnimatePresence>
+        {feedbackActions.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            className="relative z-20 max-w-[1400px] mx-auto px-6 lg:px-8 pt-4"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-2xl shadow-sm text-sm font-medium">
+              <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+              <span className="flex-1">
+                🧠 <strong>Your roadmap was updated!</strong> — {feedbackActions[feedbackActions.length - 1].label}
+              </span>
+              <button onClick={clearFeedbackActions} className="text-amber-400 hover:text-amber-600 transition-colors ml-2">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <main className="max-w-[1400px] mx-auto px-6 lg:px-8 py-4 relative z-10 w-full">
+        <Header />
+        
+        <div className="flex flex-col lg:flex-row gap-8 items-start w-full">
+          <div className="flex-1 min-w-0">
+            <ProgressCards />
+            <RoadmapView />
+          </div>
+          
+          <RightSidebar />
         </div>
       </main>
+
+      {/* Floating AI Chatbot — position: fixed inside */}
+      <AIChatbot />
     </div>
   );
 }
