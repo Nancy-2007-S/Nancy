@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   FiArrowLeft,
   FiArrowRight,
@@ -39,6 +40,7 @@ const DEFAULT_DATA = {
 };
 
 export default function OnboardingView() {
+  const router = useRouter();
   const { userProfile, profileLoaded } = useStore();
   const { showToast } = useToast();
 
@@ -162,7 +164,9 @@ export default function OnboardingView() {
     localStorage.setItem("career_dataset", JSON.stringify(payload));
     localStorage.removeItem(DRAFT_KEY);
     showToast("Onboarding complete!", "success");
-    // State will update automatically via AuthProvider/Store to show Dashboard
+    
+    // Explicitly navigate to provide immediate result
+    router.push("/");
   };
 
   const handleNextStep = () => {
@@ -234,7 +238,15 @@ export default function OnboardingView() {
 
           {(stage === "questionnaire") && (
             <section className="rounded-3xl bg-white/85 p-6 shadow-lg dark:bg-slate-800/80">
-              <p className="text-xs text-slate-400 mb-2">Step {qStep} of 5</p>
+              <div className="flex justify-between items-center mb-6">
+                 <div>
+                   <h3 className="text-lg font-bold text-slate-800 dark:text-white">Step {qStep} of 5</h3>
+                   <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mt-2 min-w-[200px]">
+                      <div className="bg-indigo-500 h-1.5 rounded-full transition-all duration-300" style={{ width: `${(qStep/5)*100}%` }}></div>
+                   </div>
+                 </div>
+              </div>
+
               {qStep === 1 && (
                 <div>
                   <label className="block text-sm font-medium mb-2 dark:text-slate-200">What are your top skills?</label>
@@ -245,39 +257,84 @@ export default function OnboardingView() {
                     className="w-full rounded-xl border p-2.5 dark:bg-slate-900 dark:border-slate-700 dark:text-white"
                     placeholder="e.g. React, UX Design"
                   />
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
+                    Selected: {data.skills.map(s => (
+                      <span key={s} className="bg-sky-100 text-sky-700 px-2 py-0.5 rounded-md flex items-center gap-1">
+                        {s} <FiX className="cursor-pointer" onClick={() => removeTag("skills", s)} />
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {availableSkills.map(s => (
-                      <button key={s} onClick={() => addTag("skills", s)} className="px-2 py-1 bg-sky-50 text-sky-600 rounded-lg text-xs">+ {s}</button>
+                      <button key={s} onClick={() => addTag("skills", s)} className="px-2 py-1 bg-white border border-slate-200 hover:border-sky-400 text-slate-600 dark:bg-slate-800 dark:border-slate-700 rounded-lg text-xs">+ {s}</button>
                     ))}
                   </div>
                 </div>
               )}
               {qStep === 2 && (
                 <div>
-                  <label className="block text-sm font-medium mb-2 dark:text-slate-200">Career Interests</label>
-                  <button onClick={() => setShowInterestDropdown(!showInterestDropdown)} className="w-full text-left p-2.5 bg-white border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300">
-                    {data.interests.length ? data.interests.join(", ") : "Select Interests"}
+                  <label className="block text-sm font-medium mb-2 dark:text-slate-200">Primary Career Goal</label>
+                  <button onClick={() => setShowInterestDropdown(!showInterestDropdown)} className="w-full text-left p-2.5 bg-white border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300 flex justify-between items-center">
+                    {data.interests.length ? data.interests.join(", ") : "Select Career Path"}
+                    <FiChevronDown />
                   </button>
                   {showInterestDropdown && (
-                    <div className="mt-2 grid grid-cols-2 gap-2 p-2 bg-white border rounded-xl dark:bg-slate-900 dark:border-slate-700">
+                    <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 p-2 bg-white border rounded-xl shadow-xl z-20 absolute w-full max-w-[calc(100%-3rem)] dark:bg-slate-800 dark:border-slate-700">
                       {filteredInterests.map(i => (
-                        <button key={i} onClick={() => addTag("interests", i)} className="text-left px-2 py-1 text-xs hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-slate-200">{i}</button>
+                        <button key={i} onClick={() => { addTag("interests", i); setShowInterestDropdown(false); }} className="text-left px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 dark:text-slate-200 rounded-lg">{i}</button>
                       ))}
                     </div>
                   )}
                 </div>
               )}
               {qStep === 3 && (
-                <div className="grid gap-3">
-                  <input value={degree} onChange={e => setDegree(e.target.value)} placeholder="Degree" className="p-2.5 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white" />
-                  <input value={field} onChange={e => setField(e.target.value)} placeholder="Field of Study" className="p-2.5 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white" />
-                  <input value={university} onChange={e => setUniversity(e.target.value)} placeholder="University" className="p-2.5 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white" />
+                <div className="grid gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 dark:text-slate-200">What is your education level?</label>
+                    <input value={degree} onChange={e => setDegree(e.target.value)} placeholder="e.g. Bachelor's Degree" className="w-full p-2.5 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2 dark:text-slate-200">Field of Study</label>
+                    <input value={field} onChange={e => setField(e.target.value)} placeholder="e.g. Computer Science" className="w-full p-2.5 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2 dark:text-slate-200">Institution Name</label>
+                    <input value={university} onChange={e => setUniversity(e.target.value)} placeholder="e.g. Stanford University" className="w-full p-2.5 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white" />
+                  </div>
                 </div>
               )}
-              {qError && <p className="text-xs text-red-500 mt-2">{qError}</p>}
-              <div className="mt-6 flex justify-between">
-                <button onClick={() => qStep === 1 ? goToStage("choice") : setQStep(qStep - 1)} className="px-4 py-2 border rounded-xl text-sm">Back</button>
-                <button onClick={handleNextStep} className="px-6 py-2 bg-sky-500 text-white rounded-xl text-sm font-semibold">{qStep === 5 ? "Finish" : "Next"}</button>
+              {qStep === 4 && (
+                <div className="grid gap-4">
+                  <label className="block text-sm font-medium mb-2 dark:text-slate-200">Projects or Achievements (Optional)</label>
+                  <p className="text-xs text-slate-500 mb-2">Tell us about meaningful things you've built or achieved.</p>
+                  <textarea 
+                    value={data.projects.join("\n")}
+                    onChange={e => updateListFromText("projects", e.target.value)} 
+                    placeholder="E.g. built a portfolio website using React..." 
+                    className="w-full p-2.5 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white min-h-[150px]" 
+                  />
+                </div>
+              )}
+              {qStep === 5 && (
+                <div className="grid gap-4">
+                  <label className="block text-sm font-medium mb-2 dark:text-slate-200">Work Experience (Optional)</label>
+                  <p className="text-xs text-slate-500 mb-2">Mention any internships or full-time roles.</p>
+                  <textarea 
+                    value={data.experience.join("\n")}
+                    onChange={e => updateListFromText("experience", e.target.value)} 
+                    placeholder="E.g. Internship at Google as Frontend Dev..." 
+                    className="w-full p-2.5 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white min-h-[150px]" 
+                  />
+                </div>
+              )}
+              {qError && <p className="text-xs text-red-500 mt-2 font-medium bg-red-50 p-2 rounded-lg">{qError}</p>}
+              <div className="mt-8 flex justify-between">
+                <button onClick={() => qStep === 1 ? goToStage("choice") : setQStep(qStep - 1)} className="px-5 py-2.5 flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium font-sm border border-slate-200 rounded-xl">
+                  <FiArrowLeft /> Back
+                </button>
+                <button onClick={handleNextStep} className="px-8 py-2.5 bg-indigo-600 hover:shadow-lg hover:shadow-indigo-200 text-white rounded-xl text-sm font-bold flex items-center gap-2">
+                  {qStep === 5 ? "Finish" : "Next"} <FiArrowRight />
+                </button>
               </div>
             </section>
           )}
@@ -289,17 +346,37 @@ export default function OnboardingView() {
                 onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={e => { e.preventDefault(); setIsDragging(false); handleResumeSelection(e.dataTransfer.files[0]); }}
-                className={`border-2 border-dashed p-10 text-center rounded-2xl ${isDragging ? "bg-sky-50 border-sky-400" : "bg-white dark:bg-slate-900"}`}
+                className={`border-2 border-dashed p-10 text-center rounded-2xl transition-colors ${isDragging ? "bg-indigo-50 border-indigo-400" : "bg-white dark:bg-slate-900 border-slate-200"}`}
               >
-                <FiUploadCloud size={32} className="mx-auto mb-4 text-slate-400" />
+                <FiUploadCloud size={32} className="mx-auto mb-4 text-indigo-400" />
                 <p className="text-sm text-slate-500">Drop PDF or Click to Upload</p>
                 <input type="file" className="hidden" id="resume" onChange={e => handleResumeSelection(e.target.files[0])} />
-                <label htmlFor="resume" className="mt-4 px-4 py-2 bg-sky-500 text-white rounded-xl text-sm inline-block cursor-pointer">Upload</label>
+                <label htmlFor="resume" className="mt-4 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-sm inline-block cursor-pointer transition-colors shadow-md">Upload</label>
               </div>
-              {isParsingResume && <p className="text-xs text-center mt-2 animate-pulse text-sky-600">Extracting profile details...</p>}
-              <div className="mt-6 flex justify-between">
-                <button onClick={() => goToStage("choice")} className="px-4 py-2 border rounded-xl text-sm">Back</button>
-                <button onClick={() => submitAndRedirect()} disabled={!resumeReady} className="px-6 py-2 bg-sky-500 text-white rounded-xl text-sm font-semibold disabled:opacity-50">Continue</button>
+              {isParsingResume && (
+                <div className="flex flex-col items-center mt-6">
+                  <div className="w-8 h-8 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                  <p className="text-xs text-center mt-2 font-medium text-slate-500">Extracting profile details...</p>
+                </div>
+              )}
+              {resumeReady && (
+                <div className="mt-6 p-4 bg-teal-50 border border-teal-100 rounded-xl flex items-center gap-3">
+                   <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-600">
+                      <FiInfo size={20} />
+                   </div>
+                   <div className="flex-1">
+                      <p className="text-sm font-bold text-teal-900">Success!</p>
+                      <p className="text-xs text-teal-700">Your profile was updated based on your resume.</p>
+                   </div>
+                </div>
+              )}
+              <div className="mt-8 flex justify-between">
+                <button onClick={() => goToStage("choice")} className="px-4 py-2 flex items-center gap-2 border rounded-xl text-sm font-medium text-slate-600">
+                  <FiArrowLeft /> Back
+                </button>
+                <button onClick={() => submitAndRedirect()} disabled={!resumeReady} className="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-sm font-bold disabled:opacity-50 transition-colors shadow-md">
+                   Continue
+                </button>
               </div>
             </section>
           )}

@@ -1,5 +1,7 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { signupUser, loginWithGoogle } from "@/lib/api";
@@ -18,7 +20,8 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-export default function SignupView({ setView }) {
+export default function SignupView() {
+  const router = useRouter();
   const { showToast } = useToast();
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
@@ -80,8 +83,7 @@ export default function SignupView({ setView }) {
       
       setForm(initialForm);
       setErrors({});
-      // In SPA, the change will be detected via status. 
-      // But we can trigger setView("onboarding") if needed.
+      router.push("/");
     } catch (error) {
       setStatusMessage(error.message);
       showToast(error.message || "Signup failed", "error");
@@ -101,6 +103,7 @@ export default function SignupView({ setView }) {
         localStorage.setItem("onboardingSignupName", result.user.displayName || "Google User");
         setStatusMessage("Authenticated via Google, redirecting...");
         showToast("Signup successful. Continue onboarding.", "success");
+        router.push("/");
       }
     } catch (error) {
       console.error("[GoogleAuth-Signup] Error:", error);
@@ -258,12 +261,12 @@ export default function SignupView({ setView }) {
 
         <p className="mt-6 text-center text-xs text-slate-600 dark:text-slate-400">
           Already have an account?{" "}
-          <button
-            onClick={() => setView("login")}
+          <Link
+            href="/login"
             className="font-medium text-sky-600 hover:text-sky-700 underline-offset-2 hover:underline transition dark:text-sky-400"
           >
             Log in
-          </button>
+          </Link>
         </p>
       </div>
     </div>
