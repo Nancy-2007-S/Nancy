@@ -33,35 +33,35 @@ export default function StepCard({ step, index, edges }) {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="relative flex items-start group"
+      className="relative flex items-start group w-full"
     >
       {/* Connector Line */}
       {index !== 0 && (
-        <div className={clsx("absolute -top-6 left-5 border-l-2 h-6 z-0", 
+        <div className={clsx("absolute -top-6 left-4 md:left-5 border-l-2 h-6 z-0", 
           isUnlocked ? "border-emerald-400" : "border-slate-200"
         )}></div>
       )}
 
       {/* Node / Marker */}
-      <div className="z-10 mt-1 shrink-0 bg-white">
+      <div className="z-10 mt-1 mb-6 shrink-0 bg-white">
         {isCompleted ? (
-          <CheckCircle className="w-10 h-10 text-emerald-500" />
+          <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-emerald-500" />
         ) : isUnlocked ? (
-          <div className="w-10 h-10 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white shadow-sm">
-             <div className="w-3 h-3 rounded-full bg-slate-200 group-hover:bg-slate-300 transition-colors"></div>
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white shadow-sm">
+             <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-slate-200 group-hover:bg-slate-300 transition-colors"></div>
           </div>
         ) : (
-          <div className="w-10 h-10 rounded-full border-2 border-slate-200 bg-slate-50 flex items-center justify-center">
-            <Lock className="w-4 h-4 text-slate-400" />
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-200 bg-slate-50 flex items-center justify-center">
+            <Lock className="w-3 md:w-4 h-3 md:h-4 text-slate-400" />
           </div>
         )}
       </div>
 
       {/* Card Content */}
-      <div className={clsx("ml-6 flex-1 rounded-2xl border mb-6 transition-all", 
+      <div className={clsx("ml-3 md:ml-6 flex-1 rounded-xl md:rounded-2xl border mb-6 transition-all min-w-0 bg-white", 
         step.isNew ? "bg-amber-50/60 border-amber-300 shadow-md shadow-amber-100 ring-2 ring-amber-200 ring-offset-1" :
         isCompleted ? "bg-[#f8fcfa] border-emerald-200 shadow-sm" : 
-        isUnlocked ? "bg-white border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md" : 
+        isUnlocked ? "border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md" : 
         "bg-slate-50 border-slate-200 opacity-80"
       )}>
         {step.isNew && (
@@ -90,14 +90,14 @@ export default function StepCard({ step, index, edges }) {
             )}
           </div>
 
-          <div className="flex flex-col items-start md:items-end gap-3">
-             <div className="flex items-center gap-2">
+          <div className="flex flex-col items-start md:items-end gap-3 shrink-1">
+             <div className="flex flex-wrap items-center gap-2">
                {step.resources?.map((res, i) => (
                  <a key={i} title={res.title || 'Resource link'} href={res.link || '#'} className={clsx("p-2 rounded-lg border", isUnlocked ? "bg-white border-slate-200 hover:bg-slate-50" : "bg-slate-100 border-transparent opacity-50 cursor-not-allowed")} onClick={e => !isUnlocked && e.preventDefault()}>
                     {IconMap[res.type] || <FileText className="w-4 h-4" />}
                  </a>
                ))}
-               {step.resources?.length > 0 && <span className="text-xs text-slate-400 ml-1 truncate w-24">External resource</span>}
+               {step.resources?.length > 0 && <span className="text-[10px] md:text-xs text-slate-400 truncate max-w-[80px]">Resource</span>}
              </div>
 
              {isCompleted ? (

@@ -7,6 +7,7 @@ import { signOut } from 'firebase/auth';
 import { useStore } from '@/store/useStore';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import ThemeToggle from './ThemeToggle';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -57,6 +58,7 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         <Link 
           href="/profile"
           className="flex items-center gap-2 pr-2 pl-1 py-1 group" 
@@ -93,6 +95,10 @@ export default function Navbar() {
             </Link>
           ))}
           <div className="h-px bg-slate-100 my-2"></div>
+          <div className="flex items-center justify-between">
+            <span className="text-slate-600 font-medium">Dark Mode</span>
+            <ThemeToggle />
+          </div>
           <button 
             onClick={() => {
               signOut(auth);

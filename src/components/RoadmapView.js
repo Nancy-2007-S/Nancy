@@ -43,7 +43,7 @@ export default function RoadmapView() {
   const hasUpdates = feedbackActions.length > 0;
 
   return (
-    <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex-1">
+    <div className="bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm flex-1 overflow-hidden">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-slate-800 tracking-tight capitalize">
           {activeTab} Level Roadmap

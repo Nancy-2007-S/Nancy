@@ -99,7 +99,7 @@ export default function AIChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-24 right-6 z-50 w-[360px] max-h-[580px] flex flex-col bg-white rounded-3xl shadow-2xl shadow-slate-900/20 border border-slate-200 overflow-hidden"
+            className="fixed bottom-24 right-4 md:right-6 z-50 w-[calc(100vw-2rem)] md:w-[360px] max-h-[70vh] md:max-h-[580px] flex flex-col bg-white rounded-3xl shadow-2xl shadow-slate-900/20 border border-slate-200 overflow-hidden"
             id="chatbot-panel"
           >
             {/* Header */}
