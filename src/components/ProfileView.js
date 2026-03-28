@@ -18,6 +18,11 @@ export default function ProfileView() {
   const [skills, setSkills] = useState([]);
   const [interestInput, setInterestInput] = useState('');
   const [interests, setInterests] = useState([]);
+  const [academicBackground, setAcademicBackground] = useState('');
+  const [projects, setProjects] = useState([]);
+  const [experience, setExperience] = useState([]);
+  const [projectsInput, setProjectsInput] = useState('');
+  const [experienceInput, setExperienceInput] = useState('');
   
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -44,6 +49,9 @@ export default function ProfileView() {
       setGoal(userProfile.goal || 'Full Stack Developer');
       setSkills(userProfile.skills || []);
       setInterests(userProfile.interests || []);
+      setAcademicBackground(userProfile.academic_background || '');
+      setProjects(userProfile.projects || []);
+      setExperience(userProfile.experience || []);
     }
   }, [userProfile]);
 
@@ -79,6 +87,30 @@ export default function ProfileView() {
 
   const handleRemoveInterest = (interest) => {
     setInterests(interests.filter(i => i !== interest));
+  };
+  
+  const handleAddProject = (e) => {
+    if (e.hex && e.key !== 'Enter') return;
+    if (projectsInput.trim() && !projects.includes(projectsInput.trim())) {
+      setProjects([...projects, projectsInput.trim()]);
+      setProjectsInput('');
+    }
+  };
+
+  const handleRemoveProject = (project) => {
+    setProjects(projects.filter(p => p !== project));
+  };
+
+  const handleAddExperience = (e) => {
+    if (e.hex && e.key !== 'Enter') return;
+    if (experienceInput.trim() && !experience.includes(experienceInput.trim())) {
+      setExperience([...experience, experienceInput.trim()]);
+      setExperienceInput('');
+    }
+  };
+
+  const handleRemoveExperience = (exp) => {
+    setExperience(experience.filter(e => e !== exp));
   };
 
   const handleFileChange = (e) => {
@@ -155,6 +187,9 @@ export default function ProfileView() {
         goal,
         skills,
         interests,
+        academic_background: academicBackground,
+        projects,
+        experience,
         updatedAt: new Date().toISOString()
       }, { merge: true });
 
@@ -342,6 +377,63 @@ export default function ProfileView() {
                     {interest}
                     <button type="button" onClick={() => handleRemoveInterest(interest)} className="text-teal-400 hover:text-teal-600">&times;</button>
                   </motion.span>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold text-slate-600 block mb-1.5 ml-1">Academic Background</label>
+              <input 
+                type="text" 
+                value={academicBackground}
+                onChange={(e) => setAcademicBackground(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-medium placeholder:text-slate-400"
+                placeholder="e.g. B.Tech in Computer Science"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold text-slate-600 block mb-1.5 ml-1">Notable Projects</label>
+              <div className="flex gap-2 mb-2">
+                <input 
+                  type="text" 
+                  value={projectsInput}
+                  onChange={(e) => setProjectsInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddProject(e))}
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-medium"
+                  placeholder="Describe a project..."
+                />
+                <button type="button" onClick={handleAddProject} className="bg-blue-50 text-blue-700 px-5 py-3 rounded-xl text-sm font-bold">Add</button>
+              </div>
+              <div className="space-y-2">
+                {projects.map(p => (
+                  <div key={p} className="flex items-center justify-between p-3 bg-blue-50/30 border border-blue-100 rounded-xl text-sm text-slate-700 group">
+                    <span>{p}</span>
+                    <button type="button" onClick={() => handleRemoveProject(p)} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">Remove</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold text-slate-600 block mb-1.5 ml-1">Experience</label>
+              <div className="flex gap-2 mb-2">
+                <input 
+                  type="text" 
+                  value={experienceInput}
+                  onChange={(e) => setExperienceInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddExperience(e))}
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all font-medium"
+                  placeholder="e.g. Interned at Google..."
+                />
+                <button type="button" onClick={handleAddExperience} className="bg-purple-50 text-purple-700 px-5 py-3 rounded-xl text-sm font-bold">Add</button>
+              </div>
+              <div className="space-y-2">
+                {experience.map(e => (
+                  <div key={e} className="flex items-center justify-between p-3 bg-purple-50/30 border border-purple-100 rounded-xl text-sm text-slate-700 group">
+                    <span>{e}</span>
+                    <button type="button" onClick={() => handleRemoveExperience(e)} className="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">Remove</button>
+                  </div>
                 ))}
               </div>
             </div>
