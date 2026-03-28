@@ -1,6 +1,6 @@
-# Nancy - Career Mentor
+# Career Mentor Platform
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+An AI system that evaluates a student’s academic background, skills, projects, and interests to create a personalized career roadmap.
 
 ## Getting Started
 
