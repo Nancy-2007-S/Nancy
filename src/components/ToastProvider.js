@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+"use client";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 const ToastContext = createContext(null);
 
@@ -27,7 +28,7 @@ export function ToastProvider({ children }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`rounded-md px-4 py-3 text-sm text-white shadow-lg ${
+            className={`rounded-md px-4 py-3 text-sm text-white shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-top-4 ${
               toast.type === "success"
                 ? "bg-emerald-600"
                 : toast.type === "error"
@@ -50,4 +51,3 @@ export function useToast() {
   }
   return context;
 }
-

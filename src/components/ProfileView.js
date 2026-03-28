@@ -5,11 +5,10 @@ import { useAuth } from '@/lib/useAuth';
 import { useStore } from '@/store/useStore';
 import { db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Import Firebase Storage
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { motion } from 'framer-motion';
-import Navbar from '@/components/Navbar';
 
-export default function Profile() {
+export default function ProfileView() {
   const { user, loading: authLoading } = useAuth();
   const { userProfile, initializeListeners } = useStore();
 
@@ -20,7 +19,6 @@ export default function Profile() {
   const [interestInput, setInterestInput] = useState('');
   const [interests, setInterests] = useState([]);
   
-  // New state for avatar upload
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -41,16 +39,6 @@ export default function Profile() {
   ];
 
   useEffect(() => {
-    let unsubscribe;
-    if (user && !userProfile) {
-      unsubscribe = initializeListeners(user.uid);
-    }
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [user, userProfile, initializeListeners]);
-
-  useEffect(() => {
     if (userProfile) {
       setName(userProfile.name || '');
       setGoal(userProfile.goal || 'Full Stack Developer');
@@ -59,7 +47,6 @@ export default function Profile() {
     }
   }, [userProfile]);
 
-  // Effect for avatar preview cleanup
   useEffect(() => {
     if (avatarFile) {
       const objectUrl = URL.createObjectURL(avatarFile);
@@ -97,7 +84,7 @@ export default function Profile() {
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
       setAvatarFile(e.target.files[0]);
-      setError(''); // Clear any previous error
+      setError('');
     } else {
       setAvatarFile(null);
     }
@@ -123,10 +110,10 @@ export default function Profile() {
       await setDoc(userDocRef, { photoURL: downloadURL }, { merge: true });
 
       setSuccess('Avatar uploaded successfully!');
-      setAvatarFile(null); // Clear file input
-      setAvatarPreview(null); // Clear preview
+      setAvatarFile(null);
+      setAvatarPreview(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''; // Reset file input visually
+        fileInputRef.current.value = '';
       }
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
@@ -186,26 +173,11 @@ export default function Profile() {
     }
   };
 
-  if (authLoading || (!userProfile && user)) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#f4f7ff]">
-        <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-      </div>
-    );
-  }
-
-  if (!user) return null; // AuthProvider avoids flash
-
   return (
-    <div className="min-h-screen bg-[#f4f7ff] relative overflow-hidden">
-      {/* Background blobs for aesthetics */}
+    <div className="bg-[#f4f7ff] relative overflow-hidden w-full">
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/80 to-transparent pointer-events-none -translate-y-12 z-0"></div>
       
-      <div className="relative z-10 w-full">
-         <Navbar />
-      </div>
-      
-      <main className="max-w-4xl mx-auto px-6 lg:px-8 py-10 relative z-10">
+      <main className="max-w-4xl mx-auto px-6 lg:px-8 py-10 relative z-10 w-full">
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -231,7 +203,6 @@ export default function Profile() {
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            {/* Avatar Upload Section */}
             <div className="flex flex-col items-center gap-3 mb-2">
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-100 bg-indigo-50 flex items-center justify-center shadow-md">
                 {(avatarPreview || userProfile?.photoURL) ? (

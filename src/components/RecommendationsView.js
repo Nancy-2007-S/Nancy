@@ -1,38 +1,23 @@
 'use client';
 import { useAuth } from '@/lib/useAuth';
 import { useStore } from '@/store/useStore';
-import Navbar from '@/components/Navbar';
 import { getFullRecommendations } from '@/lib/recommendationEngine';
 import { Sparkles, BookOpen, Rocket, Terminal, Briefcase, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function Recommendations() {
-  const { user, loading: authLoading } = useAuth();
+export default function RecommendationsView() {
   const { userProfile, progress } = useStore();
 
-  if (authLoading || (!userProfile && user)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f4f7ff]">
-        <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (!user || !userProfile) return null;
+  if (!userProfile) return null;
 
   const { targetSkills, skillGaps, courses, projects, peerInsights, jobs } =
     getFullRecommendations(userProfile.goal, userProfile.skills, progress?.completedNodes || []);
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#f4f7ff]">
+    <div className="bg-[#f4f7ff] relative overflow-hidden w-full">
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/80 to-transparent pointer-events-none -translate-y-12 z-0"></div>
       
-      <div className="relative z-10 w-full">
-        <Navbar />
-      </div>
-      
       <main className="max-w-[1400px] mx-auto px-6 lg:px-8 py-8 relative z-10 w-full">
-        {/* Hero */}
         <div className="mb-8 p-6 bg-white/80 backdrop-blur-md border border-indigo-100 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-4">
           <div className="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20">
             <Sparkles className="w-7 h-7" />
@@ -46,9 +31,7 @@ export default function Recommendations() {
           </div>
         </div>
 
-        {/* ── Row 1: Skill Analysis + Courses + Projects ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Left — Skill gaps & target */}
           <div className="flex flex-col gap-6">
             <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
               <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
@@ -76,9 +59,7 @@ export default function Recommendations() {
             </div>
           </div>
 
-          {/* Right — Courses & Projects */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* Courses */}
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
               <div className="bg-slate-50/50 border-b border-slate-200 p-4 flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500">
@@ -115,7 +96,6 @@ export default function Recommendations() {
               </div>
             </div>
 
-            {/* Projects */}
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
               <div className="bg-slate-50/50 border-b border-slate-200 p-4 flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
@@ -142,9 +122,7 @@ export default function Recommendations() {
           </div>
         </div>
 
-        {/* ── Row 2: Mock Jobs + Peer Insights ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Mock Jobs (LinkedIn-style) */}
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div className="bg-slate-50/50 border-b border-slate-200 p-4 flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500">
@@ -179,7 +157,6 @@ export default function Recommendations() {
             </div>
           </div>
 
-          {/* Peer Insights (Collaborative Filtering) */}
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div className="bg-slate-50/50 border-b border-slate-200 p-4 flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-500">

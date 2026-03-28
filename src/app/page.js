@@ -1,21 +1,36 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Header from '@/components/Header';
 import ProgressCards from '@/components/ProgressCards';
 import RoadmapView from '@/components/RoadmapView';
 import RightSidebar from '@/components/RightSidebar';
 import AIChatbot from '@/components/AIChatbot';
+import LoginView from '@/components/LoginView';
+import SignupView from '@/components/SignupView';
+import OnboardingView from '@/components/OnboardingView';
+import ProfileView from '@/components/ProfileView';
+import RecommendationsView from '@/components/RecommendationsView';
 import { useAuth } from '@/lib/useAuth';
 import { useStore } from '@/store/useStore';
 import { Sparkles, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
-  const { user } = useAuth();
-  const { initializeListeners, userProfile, progress, feedbackActions, clearFeedbackActions } = useStore();
+  const { user, loading: authLoading } = useAuth();
+  const { 
+    initializeListeners, 
+    userProfile, 
+    profileLoaded,
+    progress, 
+    feedbackActions, 
+    clearFeedbackActions 
+  } = useStore();
 
+  const [view, setView] = useState('login'); // login | signup | onboarding | dashboard | profile | recommendations
+
+  // Initialize listeners when user is authenticated
   useEffect(() => {
     let unsubscribe;
     if (user) {
@@ -26,7 +41,25 @@ export default function Home() {
     };
   }, [user, initializeListeners]);
 
-  if (!userProfile || !progress) {
+  // Determine initial view based on Auth + Profile state
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user) {
+      if (view !== 'login' && view !== 'signup') {
+        setView('login');
+      }
+    } else if (profileLoaded) {
+      if (!userProfile || userProfile.exists === false || !userProfile.goal) {
+        setView('onboarding');
+      } else if (view === 'login' || view === 'signup' || view === 'onboarding') {
+        setView('dashboard');
+      }
+    }
+  }, [user, authLoading, profileLoaded, userProfile]);
+
+  // Loading state
+  if (authLoading || (user && !profileLoaded)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#f4f7ff]">
         <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/80 to-transparent pointer-events-none -translate-y-12"></div>
@@ -36,51 +69,77 @@ export default function Home() {
     );
   }
 
+  // Auth Views
+  if (view === 'login') return <LoginView setView={setView} />;
+  if (view === 'signup') return <SignupView setView={setView} />;
+  if (view === 'onboarding') return <OnboardingView />;
+
+  // Main App Content (Dashboard, Profile, Recommendations)
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#f4f7ff]">
-      {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/80 to-transparent pointer-events-none -translate-y-12"></div>
       <div className="absolute top-20 right-20 w-[500px] h-[500px] bg-indigo-100/30 rounded-full blur-[100px] pointer-events-none"></div>
       <div className="absolute bottom-20 left-10 w-[400px] h-[400px] bg-teal-50/40 rounded-full blur-[80px] pointer-events-none"></div>
 
-      <Navbar />
+      <Navbar setView={setView} currentView={view} />
 
-      {/* Feedback Banner */}
-      <AnimatePresence>
-        {feedbackActions.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            className="relative z-20 max-w-[1400px] mx-auto px-6 lg:px-8 pt-4"
-          >
-            <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-2xl shadow-sm text-sm font-medium">
-              <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-              <span className="flex-1">
-                🧠 <strong>Your roadmap was updated!</strong> — {feedbackActions[feedbackActions.length - 1].label}
-              </span>
-              <button onClick={clearFeedbackActions} className="text-amber-400 hover:text-amber-600 transition-colors ml-2">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </motion.div>
-        )}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={view}
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          {view === 'dashboard' && (
+            <>
+              {/* Feedback Banner */}
+              <AnimatePresence>
+                {feedbackActions.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    className="relative z-20 max-w-[1400px] mx-auto px-6 lg:px-8 pt-4"
+                  >
+                    <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-2xl shadow-sm text-sm font-medium">
+                      <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span className="flex-1">
+                        🧠 <strong>Your roadmap was updated!</strong> — {feedbackActions[feedbackActions.length - 1].label}
+                      </span>
+                      <button onClick={clearFeedbackActions} className="text-amber-400 hover:text-amber-600 transition-colors ml-2">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <main className="max-w-[1400px] mx-auto px-6 lg:px-8 py-4 relative z-10 w-full">
+                <Header />
+                {!progress ? (
+                   <div className="flex flex-col items-center justify-center py-20">
+                     <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+                     <p className="text-slate-500 font-medium animate-pulse">Loading roadmap...</p>
+                   </div>
+                ) : (
+                  <div className="flex flex-col lg:flex-row gap-8 items-start w-full">
+                    <div className="flex-1 min-w-0">
+                      <ProgressCards />
+                      <RoadmapView />
+                    </div>
+                    <RightSidebar />
+                  </div>
+                )}
+              </main>
+            </>
+          )}
+
+          {view === 'profile' && <ProfileView />}
+          {view === 'recommendations' && <RecommendationsView />}
+        </motion.div>
       </AnimatePresence>
 
-      <main className="max-w-[1400px] mx-auto px-6 lg:px-8 py-4 relative z-10 w-full">
-        <Header />
-        
-        <div className="flex flex-col lg:flex-row gap-8 items-start w-full">
-          <div className="flex-1 min-w-0">
-            <ProgressCards />
-            <RoadmapView />
-          </div>
-          
-          <RightSidebar />
-        </div>
-      </main>
-
-      {/* Floating AI Chatbot — position: fixed inside */}
       <AIChatbot />
     </div>
   );

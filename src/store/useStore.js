@@ -9,6 +9,7 @@ import { addNode, removeNode, computeAdaptation } from '@/lib/dagUtils';
 export const useStore = create((set, get) => ({
   // ── State ──────────────────────────────────────────────
   userProfile:    null,
+  profileLoaded:  false,
   progress:       null,
   roadmap:        null,
   chatHistory:    [],    // { id, sender: 'user'|'bot', text, timestamp }
@@ -18,26 +19,42 @@ export const useStore = create((set, get) => ({
   // ── Listeners ──────────────────────────────────────────
   initializeListeners: (uid) => {
     // 1. User profile
-    const unsubUser = onSnapshot(doc(db, 'users', uid), (snap) => {
-      if (snap.exists()) set({ userProfile: snap.data() });
-    });``
+    const unsubUser = onSnapshot(doc(db, 'users', uid), async (snap) => {
+      if (snap.exists()) {
+        const userData = snap.data();
+        set({ userProfile: userData, profileLoaded: true });
+        
+        // If we have a goal but no roadmap loaded yet, trigger initial load
+        if (userData.goal && !get().roadmap) {
+          const roadmapId = GOAL_TO_ROADMAP_ID[userData.goal] || userData.goal;
+          await get().fetchRoadmap(roadmapId);
+        }
+      } else {
+        // Correctly handle new users whose profile document doesn't exist yet
+        set({ userProfile: { exists: false }, profileLoaded: true });
+      }
+    });
+``
 
     // 2. Progress — triggers road map adaptation on change
     const unsubProgress = onSnapshot(doc(db, 'progress', uid), async (snap) => {
-      if (!snap.exists()) return;
-      const data = snap.data();
+      const data = snap.exists() ? snap.data() : {};
       set({ progress: data });
 
-      let rId = data.roadmapId === 'default' ? 'full_stack' : (data.roadmapId || 'full_stack');
+      // Determine Roadmap ID: Priority 1. session-specific roadmapId, 2. profile goal, 3. default
+      const profileGoal = get().userProfile?.goal;
+      let rId = data.roadmapId || profileGoal || 'full_stack';
+      
       const currentRoadmap = get().roadmap;
 
-      // Fetch roadmap if not loaded or roadmapId changed
       if (!currentRoadmap || currentRoadmap.roadmapId !== rId) {
-        await get().fetchRoadmap(rId);
+        const mappedId = GOAL_TO_ROADMAP_ID[rId] || rId;
+        await get().fetchRoadmap(mappedId);
       }
 
-      // Run adaptive feedback loop
-      get().adaptRoadmap(uid);
+      if (snap.exists()) {
+        get().adaptRoadmap(uid);
+      }
     });
 
     // 3. Chat history from Firestore
@@ -61,11 +78,12 @@ export const useStore = create((set, get) => ({
   // ── Fetch Roadmap ───────────────────────────────────────
   fetchRoadmap: async (roadmapId) => {
     try {
-      const snap = await getDoc(doc(db, 'roadmaps', roadmapId));
+      const mappedId = GOAL_TO_ROADMAP_ID[roadmapId] || roadmapId;
+      const snap = await getDoc(doc(db, 'roadmaps', mappedId));
       if (snap.exists()) {
-        set({ roadmap: { ...snap.data(), roadmapId } });
+        set({ roadmap: { ...snap.data(), roadmapId: mappedId } });
       } else {
-        console.warn('Roadmap not found in Firestore:', roadmapId);
+        console.warn('Roadmap not found in Firestore:', mappedId);
       }
     } catch (err) {
       console.error('Error fetching roadmap:', err);
