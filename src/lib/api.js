@@ -116,6 +116,7 @@ export async function saveCareerProfile(accessToken, payload) {
       skills: payload.skills,
       interests: payload.interests,
       goal: roadmapGoal,
+      onboarding_completed: true,
       academic_background: payload.academic_background,
       projects: payload.projects,
       experience: payload.experience,

@@ -83,7 +83,7 @@ export default function SignupView() {
       
       setForm(initialForm);
       setErrors({});
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       setStatusMessage(error.message);
       showToast(error.message || "Signup failed", "error");
@@ -103,7 +103,7 @@ export default function SignupView() {
         localStorage.setItem("onboardingSignupName", result.user.displayName || "Google User");
         setStatusMessage("Authenticated via Google, redirecting...");
         showToast("Signup successful. Continue onboarding.", "success");
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch (error) {
       console.error("[GoogleAuth-Signup] Error:", error);

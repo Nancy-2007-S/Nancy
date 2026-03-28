@@ -14,7 +14,7 @@ export default function Navbar() {
   const initials = (userProfile?.name || 'U').charAt(0).toUpperCase();
 
   const navItems = [
-    { id: '/', label: 'Dashboard' },
+    { id: '/dashboard', label: 'Dashboard' },
     { id: '/recommendations', label: 'Recommendations' },
     { id: '/profile', label: 'Profile' },
   ];

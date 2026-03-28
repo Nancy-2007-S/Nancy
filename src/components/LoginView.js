@@ -71,7 +71,7 @@ export default function LoginView() {
         } else {
           showToast("Login successful", "success");
         }
-        router.push("/");
+        router.push("/dashboard");
       } else {
         setFormError("Unexpected response from server.");
         showToast("Unexpected response from server", "error");
@@ -116,7 +116,7 @@ export default function LoginView() {
         } else {
           showToast("Login successful", "success");
         }
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch (error) {
       console.error("[GoogleAuth] Error:", error);

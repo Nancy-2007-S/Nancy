@@ -5,6 +5,7 @@ import {
 } from 'firebase/firestore';
 import { detectIntent, extractEntities, buildBotResponse, GOAL_TO_ROADMAP_ID } from '@/lib/chatEngine';
 import { addNode, removeNode, computeAdaptation } from '@/lib/dagUtils';
+import { validateUserSchema } from '@/lib/schema';
 
 export const useStore = create((set, get) => ({
   // ── State ──────────────────────────────────────────────
@@ -21,7 +22,13 @@ export const useStore = create((set, get) => ({
     // 1. User profile
     const unsubUser = onSnapshot(doc(db, 'users', uid), async (snap) => {
       if (snap.exists()) {
-        const userData = snap.data();
+        const userData = validateUserSchema({ uid, ...snap.data() });
+        
+        // Auto-fix: if user has a goal but no onboarding_completed flag, add it
+        if (userData.goal && !snap.data().onboarding_completed) {
+          await setDoc(doc(db, 'users', uid), { onboarding_completed: true }, { merge: true });
+        }
+        
         set({ userProfile: userData, profileLoaded: true });
         
         // If we have a goal but no roadmap loaded yet, trigger initial load

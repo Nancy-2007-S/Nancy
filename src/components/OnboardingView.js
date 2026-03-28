@@ -59,6 +59,11 @@ export default function OnboardingView() {
   const [isParsingResume, setIsParsingResume] = useState(false);
   const [resumeReady, setResumeReady] = useState(false);
   const [data, setData] = useState(DEFAULT_DATA);
+  const [isFinishing, setIsFinishing] = useState(false);
+  
+  // Local states for textareas to allow smooth typing (including spaces)
+  const [projectsText, setProjectsText] = useState("");
+  const [experienceText, setExperienceText] = useState("");
 
   useEffect(() => {
     const name = localStorage.getItem("onboardingSignupName");
@@ -74,16 +79,19 @@ export default function OnboardingView() {
         setDegree(draft?.degree || "");
         setField(draft?.field || "");
         setUniversity(draft?.university || "");
+        setProjectsText(draft?.data?.projects?.join("\n") || "");
+        setExperienceText(draft?.data?.experience?.join("\n") || "");
       }
     } catch (e) {}
   }, []);
 
   useEffect(() => {
+    if (isFinishing) return;
     localStorage.setItem(
       DRAFT_KEY,
       JSON.stringify({ stage, qStep, data, degree, field, university })
     );
-  }, [stage, qStep, data, degree, field, university]);
+  }, [stage, qStep, data, degree, field, university, isFinishing]);
 
   const goToStage = (nextStage) => {
     setAnimating(true);
@@ -130,6 +138,9 @@ export default function OnboardingView() {
   };
 
   const updateListFromText = (key, value) => {
+    if (key === "projects") setProjectsText(value);
+    if (key === "experience") setExperienceText(value);
+
     setData((prev) => ({
       ...prev,
       [key]: value.split("\n").map(i => i.trim()).filter(Boolean),
@@ -146,6 +157,7 @@ export default function OnboardingView() {
   };
 
   const submitAndRedirect = async (overridePayload = null) => {
+    setIsFinishing(true);
     const payload = overridePayload || {
       ...data,
       academic_background: `${degree.trim()}, ${field.trim()}, ${university.trim()}`,
@@ -161,12 +173,23 @@ export default function OnboardingView() {
       }
     }
 
-    localStorage.setItem("career_dataset", JSON.stringify(payload));
     localStorage.removeItem(DRAFT_KEY);
+    
+    // Explicitly update store BEFORE navigating
+    const currentState = useStore.getState();
+    useStore.setState({
+       userProfile: { 
+         ...currentState.userProfile, 
+         ...payload, 
+         onboarding_completed: true,
+         exists: true 
+       }
+    });
+
     showToast("Onboarding complete!", "success");
     
-    // Explicitly navigate to provide immediate result
-    router.push("/");
+    // Use window.location as a fallback if router.push is weird
+    router.push("/dashboard");
   };
 
   const handleNextStep = () => {
@@ -196,6 +219,8 @@ export default function OnboardingView() {
       setDegree(parts[0] || "");
       setField(parts[1] || "");
       setUniversity(parts[2] || "");
+      setProjectsText(parsed.projects?.join("\n") || "");
+      setExperienceText(parsed.experience?.join("\n") || "");
       setResumeReady(true);
       showToast("Resume parsed!", "success");
     } catch (e) {
@@ -303,12 +328,12 @@ export default function OnboardingView() {
                   </div>
                 </div>
               )}
-              {qStep === 4 && (
+               {qStep === 4 && (
                 <div className="grid gap-4">
                   <label className="block text-sm font-medium mb-2 dark:text-slate-200">Projects or Achievements (Optional)</label>
                   <p className="text-xs text-slate-500 mb-2">Tell us about meaningful things you've built or achieved.</p>
                   <textarea 
-                    value={data.projects.join("\n")}
+                    value={projectsText}
                     onChange={e => updateListFromText("projects", e.target.value)} 
                     placeholder="E.g. built a portfolio website using React..." 
                     className="w-full p-2.5 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white min-h-[150px]" 
@@ -320,7 +345,7 @@ export default function OnboardingView() {
                   <label className="block text-sm font-medium mb-2 dark:text-slate-200">Work Experience (Optional)</label>
                   <p className="text-xs text-slate-500 mb-2">Mention any internships or full-time roles.</p>
                   <textarea 
-                    value={data.experience.join("\n")}
+                    value={experienceText}
                     onChange={e => updateListFromText("experience", e.target.value)} 
                     placeholder="E.g. Internship at Google as Frontend Dev..." 
                     className="w-full p-2.5 border rounded-xl dark:bg-slate-900 dark:border-slate-700 dark:text-white min-h-[150px]" 
@@ -332,8 +357,13 @@ export default function OnboardingView() {
                 <button onClick={() => qStep === 1 ? goToStage("choice") : setQStep(qStep - 1)} className="px-5 py-2.5 flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium font-sm border border-slate-200 rounded-xl">
                   <FiArrowLeft /> Back
                 </button>
-                <button onClick={handleNextStep} className="px-8 py-2.5 bg-indigo-600 hover:shadow-lg hover:shadow-indigo-200 text-white rounded-xl text-sm font-bold flex items-center gap-2">
-                  {qStep === 5 ? "Finish" : "Next"} <FiArrowRight />
+                <button 
+                  onClick={handleNextStep} 
+                  disabled={isFinishing}
+                  className="px-8 py-2.5 bg-indigo-600 hover:shadow-lg hover:shadow-indigo-200 text-white rounded-xl text-sm font-bold flex items-center gap-2 disabled:bg-indigo-300 disabled:cursor-not-allowed"
+                >
+                  {isFinishing && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />}
+                  {isFinishing ? "Processing..." : (qStep === 5 ? "Finish" : "Next")} <FiArrowRight />
                 </button>
               </div>
             </section>
