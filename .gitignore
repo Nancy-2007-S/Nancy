@@ -4,6 +4,7 @@ node_modules/
 out/
 build/
 dist/
+dist-ssr/
 .pnp
 .pnp.*
 .yarn/*
@@ -20,14 +21,26 @@ dist/
 .env.test.local
 .env.production.local
 .env.zip
+backend/.env
+backend/config/serviceAccountKey.json
 *.pem
 *.key
+*.local
+
+# Python dependencies
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
 
 # Common IDEs and OS files
 .vscode/
 .idea/
 .DS_Store
 *.swp
+*.swo
 *.bak
 Thumbs.db
 ehthumbs.db
@@ -51,4 +64,3 @@ yarn-error.log*
 next-env.d.ts
 tmp/
 temp/
-
