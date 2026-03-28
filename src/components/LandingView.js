@@ -86,13 +86,13 @@ export default function LandingView() {
               <span className="inline-block px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-bold tracking-wider uppercase mb-6">
                 AI-Powered Career Guidance
               </span>
-              <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] mb-8">
+              <h1 className="text-4xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] mb-6 md:mb-8">
                 Navigate your <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-sky-500">
                   career path
                 </span> with precision.
               </h1>
-              <p className="text-lg md:text-xl text-slate-600 leading-relaxed mb-10 max-w-2xl">
+              <p className="text-base md:text-xl text-slate-600 leading-relaxed mb-8 md:mb-10 max-w-2xl">
                 Career Mentor uses advanced AI to build personalized roadmaps, track your progress, and provide real-time guidance to land your dream job in tech.
               </p>
               
