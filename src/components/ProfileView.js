@@ -209,17 +209,17 @@ export default function ProfileView() {
   };
 
   return (
-    <div className="bg-[#f4f7ff] relative overflow-hidden w-full">
+    <div className="bg-[#f4f7ff] dark:bg-slate-950 min-h-screen relative overflow-hidden w-full transition-colors duration-300">
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/80 to-transparent pointer-events-none -translate-y-12 z-0"></div>
       
       <main className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10 relative z-10 w-full">
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/90 backdrop-blur-xl p-5 md:p-8 rounded-2xl md:rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white w-full"
+          className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-5 md:p-8 rounded-2xl md:rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white dark:border-slate-800 w-full"
         >
-          <h2 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight mb-2">Edit Your Profile</h2>
-          <p className="text-slate-500 text-xs md:text-sm mb-6 md:mb-8">Update your goals and skills anytime to customize your learning path.</p>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white tracking-tight mb-2">Edit Your Profile</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm mb-6 md:mb-8">Update your goals and skills anytime to customize your learning path.</p>
 
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-xl border border-red-100 text-sm mb-6 flex items-start gap-2">

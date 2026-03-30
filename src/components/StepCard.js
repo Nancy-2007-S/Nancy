@@ -58,11 +58,11 @@ export default function StepCard({ step, index, edges }) {
       </div>
 
       {/* Card Content */}
-      <div className={clsx("ml-3 md:ml-6 flex-1 rounded-xl md:rounded-2xl border mb-6 transition-all min-w-0 bg-white", 
+      <div className={clsx("ml-3 md:ml-6 flex-1 rounded-xl md:rounded-2xl border mb-6 transition-all min-w-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 transition-colors", 
         step.isNew ? "bg-amber-50/60 border-amber-300 shadow-md shadow-amber-100 ring-2 ring-amber-200 ring-offset-1" :
-        isCompleted ? "bg-[#f8fcfa] border-emerald-200 shadow-sm" : 
-        isUnlocked ? "border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md" : 
-        "bg-slate-50 border-slate-200 opacity-80"
+        isCompleted ? "bg-[#f8fcfa] dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800 shadow-sm" : 
+        isUnlocked ? "shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md" : 
+        "bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 opacity-80"
       )}>
         {step.isNew && (
           <div className="flex items-center gap-2 px-4 pt-3">

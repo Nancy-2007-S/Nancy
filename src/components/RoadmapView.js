@@ -43,9 +43,9 @@ export default function RoadmapView() {
   const hasUpdates = feedbackActions.length > 0;
 
   return (
-    <div className="bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm flex-1 overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 md:p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex-1 overflow-hidden transition-colors">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-slate-800 tracking-tight capitalize">
+        <h2 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight capitalize">
           {activeTab} Level Roadmap
         </h2>
         {hasUpdates && (
@@ -61,7 +61,7 @@ export default function RoadmapView() {
       </div>
       
       {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-slate-200 mb-8 px-2 overflow-x-auto pb-0.5">
+      <div className="flex items-center gap-6 border-b border-slate-200 dark:border-slate-800 mb-8 px-2 overflow-x-auto pb-0.5">
         {tabs.map((tab) => (
           <button
             key={tab.id}

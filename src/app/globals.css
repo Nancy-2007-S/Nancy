@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Allow 'dark:' utilities to trigger on the .dark class */
+@variant dark (&:where(.dark, .dark *));
+
 
 
 

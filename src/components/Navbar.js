@@ -24,17 +24,17 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="flex items-center justify-between px-8 py-4 bg-[#fcfdff] shadow-sm sticky top-0 z-50">
+    <nav className="flex items-center justify-between px-8 py-4 bg-[#fcfdff]/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm border-b border-white dark:border-slate-800 sticky top-0 z-50 transition-colors duration-300">
       <Link 
         href="/"
         className="flex items-center gap-2 cursor-pointer group"
       >
         <div className="w-8 h-8 rounded-full bg-gradient-to-bl from-amber-400 via-rose-500 to-indigo-500 flex items-center justify-center p-0.5 group-hover:scale-110 transition-transform">
-           <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+           <div className="w-full h-full bg-white dark:bg-slate-900 rounded-full flex items-center justify-center">
              <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
            </div>
         </div>
-        <span className="font-bold text-xl text-slate-800 tracking-tight">Career Mentor</span>
+        <span className="font-bold text-xl text-slate-800 dark:text-white tracking-tight">Career Mentor</span>
       </Link>
       
       <div className="hidden md:flex items-center gap-8 text-sm pt-1">

@@ -64,7 +64,7 @@ export default function DashboardPage() {
   if (!user) return null; // Handled by refresh redirect
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#f4f7ff]">
+    <div className="min-h-screen relative overflow-hidden bg-[#f4f7ff] dark:bg-slate-950 transition-colors duration-300">
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/80 to-transparent pointer-events-none -translate-y-12"></div>
       <div className="absolute top-20 right-20 w-[500px] h-[500px] bg-indigo-100/30 rounded-full blur-[100px] pointer-events-none"></div>
       <div className="absolute bottom-20 left-10 w-[400px] h-[400px] bg-teal-50/40 rounded-full blur-[80px] pointer-events-none"></div>
