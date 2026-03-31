@@ -1,0 +1,13 @@
+{
+  "include": ["core_engine", "backend"],
+  "exclude": ["**/node_modules", "**/__pycache__", ".venv"],
+  "reportMissingImports": "none",
+  "reportMissingTypeStubs": false,
+  "pythonVersion": "3.12",
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "pythonPath": "./.venv/Scripts/python.exe"
+    }
+  ]
+}

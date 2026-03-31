@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.env
+
+# Node
+node_modules/
+dist/
+.DS_Store
+
+# Brain (Antigravity artifacts)
+.gemini/
+brain/
+
+# Local logs/results
+*.txt
+*.log
+!requirements.txt
+!package.json
