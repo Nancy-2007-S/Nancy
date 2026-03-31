@@ -5,6 +5,11 @@ from typing import List, Dict, Any, Optional
 
 import sys
 import os
+from dotenv import load_dotenv  # type: ignore
+
+# Load environment variables
+load_dotenv()
+
 # Adjust the path to import core_engine from the parent directory  # type: ignore
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -31,9 +36,16 @@ async def warmup_ping():
     """Lightweight ping to confirm the engine is ready."""
     return {"status": "warm"}
 
+# Configure CORS based on environment
+allowed_origins = os.getenv("CORS_ORIGINS", "*").split(",")
+if allowed_origins == ["*"]:
+    allow_origins = ["*"]
+else:
+    allow_origins = [origin.strip() for origin in allowed_origins]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # For dev purposes
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -62,6 +74,9 @@ class WhatIfRequest(BaseModel):
 class SkipRequest(BaseModel):
     user_data: UserDataInput
     skipped_skill: str
+
+class QuizRequest(BaseModel):
+    skill: str
 
 @app.post("/api/process")
 async def process_user_flow(data: UserDataInput):
@@ -119,8 +134,35 @@ async def skip_skill_flow(req: SkipRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.post("/api/quest/quiz")
+async def get_quest_quiz(req: QuizRequest):
+    """Generates 5 dynamic MCQs for the skill quest."""
+    try:
+        from core_engine.quiz_generator import generate_quiz_for_skill # type: ignore
+        quiz = generate_quiz_for_skill(req.skill)
+        return {"quiz": quiz}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/news/daily")
+async def fetch_daily_tech_checkin():
+    """Fetches Google News and generates a daily True/False checkin question."""
+    try:
+        from news_scraper import scrape_google_news, generate_trivia_from_news
+        # Default query for daily checking
+        news = scrape_google_news("Tech News", limit=5)
+        trivia = generate_trivia_from_news(news)
+        return {"news": news, "trivia": trivia}
+    except Exception as e:
+        print(f"Error fetching daily check-in: {e}")
+        return {"news": [], "trivia": {
+            "question": "Is Artificial Intelligence a part of Computer Science?",
+            "is_true": True,
+            "explanation": "Yes, AI is fundamentally a computer science discipline."
+        }}
+
 @app.get("/api/dynamic_offers")
-async def fetch_dynamic_internships_background(goal: str):
+async def fetch_dynamic_internships_background(goal: str, missing: str = ""):
     """Fetches dynamic offers from Apify in the background without blocking roadmap UI."""
     try:
         from core_engine.offers_api import get_dynamic_internships, enhance_certifications_with_udemy # type: ignore
@@ -128,6 +170,18 @@ async def fetch_dynamic_internships_background(goal: str):
         
         base_offers = ADVANCED_OFFERS.get(goal, [])
         certifications = [o for o in base_offers if o.get("type", "") == "Certification"]
+        
+        if missing:
+            missing_skills = [s.strip() for s in missing.split(",") if s.strip()]
+            for skill in missing_skills[:3]: # Scrape Udemy specifically for top 3 missing stack skills
+                if not any(skill.lower() in c['name'].lower() for c in certifications):
+                    certifications.insert(0, {
+                        "type": "Certification",
+                        "name": f"{skill} for Beginners to Advanced",
+                        "company": "Udemy",
+                        "url": "" 
+                    })
+        
         certifications = enhance_certifications_with_udemy(certifications)
         
         dynamic_internships = get_dynamic_internships(goal)
@@ -145,7 +199,7 @@ async def fetch_dynamic_internships_background(goal: str):
                          hc["url"] = f"https://www.linkedin.com/jobs/search/?keywords={query}"
                      dynamic_internships.append(hc)
                      
-        offers = certifications[:2] + dynamic_internships
+        offers = certifications[:4] + dynamic_internships
         return {"offers": offers}
     except Exception as e:
         print(f"Error fetching dynamic offers: {e}")

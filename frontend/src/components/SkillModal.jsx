@@ -166,17 +166,6 @@ const SkillModal = ({ skill, explanation, recommendations, onClose, onMarkComple
                       <Target size={16} /> Start AI Quest
                     </button>
                 )}
-                {isUnlocked && (
-                  <button 
-                    onClick={() => {
-                      onMarkComplete(skill);
-                      onClose();
-                    }}
-                    className="px-8 py-3 rounded-xl bg-emerald-500 text-black text-xs font-black uppercase tracking-widest hover:bg-emerald-400 transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]"
-                  >
-                    Mark as Completed ✓
-                  </button>
-                )}
              </div>
         </div>
       </div>
